@@ -84,10 +84,11 @@ def process_outputs(  image_files, outputs, metadata ):
 
         total_detected_instances = len(output['scores'])
 
-        sem = torch.zeros_like(  output['pred_masks'][0]  ).float()
-        ins = torch.zeros_like(  output['pred_masks'][0]  ).float()
 
-        if total_detected_instances > 0: 
+        if total_detected_instances > 0: # otherwise no detected instance
+
+            sem = torch.zeros_like(  output['pred_masks'][0]  ).float()
+            ins = torch.zeros_like(  output['pred_masks'][0]  ).float()
 
             current_instance = 0 
             for i in range( total_detected_instances-1, -1, -1 ): # backwards indexing (lowest score first). 'scores' are sorted from detectron2
@@ -102,12 +103,12 @@ def process_outputs(  image_files, outputs, metadata ):
             # we assume there are only 255 instances at most in one iamge 
             ins[ins>255] = 255 
 
-        # then save sem and ins using basename 
-        ins = Image.fromarray( np.array(ins.cpu()).astype('uint8') )
-        sem = Image.fromarray( np.array(sem.cpu()).astype('uint8') )
+            # then save sem and ins using basename 
+            ins = Image.fromarray( np.array(ins.cpu()).astype('uint8') )
+            sem = Image.fromarray( np.array(sem.cpu()).astype('uint8') )
 
-        sem.save(  'annotation/' + basename+'.png' )
-        ins.save(  'annotation_instance/' + basename+'.png' )
+            sem.save(  'annotation/' + basename+'.png' )
+            ins.save(  'annotation_instance/' + basename+'.png' )
         
 
 
